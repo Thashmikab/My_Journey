@@ -161,3 +161,17 @@ function revealOnScroll(targets, trigger, extra, step) {
     autoplay: onScroll({ target: trigger, enter: 'end-=12% start' }),
   });
 }
+
+/* ---------- film: play only while on screen; never autoplay with reduced motion ---------- */
+{
+  const v = document.getElementById('filmVideo'), btn = document.getElementById('filmBtn');
+  let userPaused = reduce;
+  const setBtn = () => { const playing = !v.paused; btn.textContent = playing ? '❚❚' : '▶'; btn.setAttribute('aria-label', playing ? 'Pause film' : 'Play film'); };
+  btn.addEventListener('click', () => { if (v.paused) { userPaused = false; v.play().catch(() => {}); } else { userPaused = true; v.pause(); } });
+  v.addEventListener('play', setBtn); v.addEventListener('pause', setBtn);
+  new IntersectionObserver(([e]) => {
+    if (e.isIntersecting && !userPaused) v.play().catch(() => {});
+    else if (!e.isIntersecting) v.pause();
+  }, { threshold: 0.35 }).observe(v);
+  setBtn();
+}
